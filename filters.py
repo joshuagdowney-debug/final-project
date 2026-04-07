@@ -9,7 +9,7 @@ import numpy as np
 from scipy.signal import butter, filtfilt, firwin
 
 
-# ── Default cutoff frequency tables ──────────────────────────────────────────
+
 
 DEFAULT_LOWPASS_CUTOFF = {
     "ECG": 40.0,
@@ -45,7 +45,7 @@ def get_default_bandpass_cutoffs(signal_type: str) -> tuple[float, float]:
     return DEFAULT_BANDPASS_CUTOFFS.get(signal_type, (0.5, 10.0))
 
 
-# ── Validation helper ────────────────────────────────────────────────────────
+
 
 def _validate_cutoff(cutoff: float, nyquist: float, label: str = "Cutoff"):
     if cutoff <= 0:
@@ -57,7 +57,6 @@ def _validate_cutoff(cutoff: float, nyquist: float, label: str = "Cutoff"):
         )
 
 
-# ── IIR filters (Butterworth) ────────────────────────────────────────────────
 
 def lowpass_iir(signal: np.ndarray, fs: float, cutoff: float,
                 order: int = 4) -> np.ndarray:
@@ -89,7 +88,7 @@ def bandpass_iir(signal: np.ndarray, fs: float, low: float, high: float,
     return filtfilt(b, a, signal)
 
 
-# ── FIR helpers ──────────────────────────────────────────────────────────────
+
 
 def _safe_numtaps(numtaps: int, signal_length: int) -> int:
     """
@@ -104,13 +103,13 @@ def _safe_numtaps(numtaps: int, signal_length: int) -> int:
             f"Need at least 10 samples."
         )
     safe = min(numtaps, max_taps)
-    # firwin needs odd numtaps for pass_zero=False (HPF/BPF)
+    
     if safe % 2 == 0:
         safe -= 1
     return max(safe, 3)
 
 
-# ── FIR filters ──────────────────────────────────────────────────────────────
+
 
 def lowpass_fir(signal: np.ndarray, fs: float, cutoff: float,
                 numtaps: int = 101) -> np.ndarray:
@@ -145,7 +144,7 @@ def bandpass_fir(signal: np.ndarray, fs: float, low: float, high: float,
     return filtfilt(taps, [1.0], signal)
 
 
-# ── Dispatch table ───────────────────────────────────────────────────────────
+
 
 FILTER_FUNCTIONS = {
     "LPF_IIR": lowpass_iir,

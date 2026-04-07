@@ -41,7 +41,7 @@ from analysis import (
 )
 
 
-# ── Filter option map ────────────────────────────────────────────────────────
+
 
 FILTER_OPTIONS = {
     "Low-Pass Filter (IIR)":   "LPF_IIR",
@@ -53,7 +53,7 @@ FILTER_OPTIONS = {
 }
 
 
-# ── Tooltip helper ───────────────────────────────────────────────────────────
+
 
 class ToolTip:
     """Simple hover tooltip for any tkinter widget."""
@@ -86,7 +86,7 @@ class ToolTip:
             self.tip_window = None
 
 
-# ── Plotting helpers ─────────────────────────────────────────────────────────
+
 
 def _clear_frame(frame: tk.Frame):
     for w in frame.winfo_children():
@@ -151,7 +151,7 @@ def create_fft_figure(frequencies, magnitudes, signal_type, title,
     return fig
 
 
-# ── Main GUI ─────────────────────────────────────────────────────────────────
+
 
 def launch_gui() -> None:
     root = tk.Tk()
@@ -159,7 +159,7 @@ def launch_gui() -> None:
     root.geometry("1050x900")
     root.minsize(900, 750)
 
-    # ── Variables ────────────────────────────────────────────────────────
+    
     selected_file = tk.StringVar()
     selected_signal = tk.StringVar(value=VALID_SIGNAL_TYPES[0])
     selected_filter = tk.StringVar(value="Low-Pass Filter (IIR)")
@@ -167,13 +167,13 @@ def launch_gui() -> None:
     low_cutoff_var = tk.StringVar(value="")
     high_cutoff_var = tk.StringVar(value="")
 
-    # ── Title ────────────────────────────────────────────────────────────
+   
     tk.Label(root, text="Sensor Signal Analysis System",
              font=("Arial", 16, "bold")).pack(pady=(10, 5))
     tk.Label(root, text="Load a CSV, choose signal type & filter, then run.",
              font=("Arial", 10)).pack()
 
-    # ── File selection row ───────────────────────────────────────────────
+    
     file_frame = tk.Frame(root)
     file_frame.pack(pady=8, fill=tk.X, padx=15)
 
@@ -187,7 +187,7 @@ def launch_gui() -> None:
     browse_btn.pack(side=tk.LEFT, padx=5)
     ToolTip(browse_btn, "Open a CSV file containing time-series sensor data.")
 
-    # ── Signal type row ──────────────────────────────────────────────────
+   
     sig_frame = tk.Frame(root)
     sig_frame.pack(pady=4, fill=tk.X, padx=15)
 
@@ -198,7 +198,7 @@ def launch_gui() -> None:
     ToolTip(sig_combo, "Select the sensor type so the system can apply\n"
                        "appropriate filter defaults and feature extraction.")
 
-    # ── Filter type row ──────────────────────────────────────────────────
+    
     filt_frame = tk.Frame(root)
     filt_frame.pack(pady=4, fill=tk.X, padx=15)
 
@@ -210,7 +210,7 @@ def launch_gui() -> None:
     ToolTip(filt_combo, "Choose a digital filter.\n"
                         "IIR = Butterworth (recursive), FIR = windowed sinc.")
 
-    # ── Custom cutoff parameter row ──────────────────────────────────────
+    
     param_frame = tk.LabelFrame(root, text="Filter Parameters (leave blank for defaults)",
                                 padx=8, pady=4)
     param_frame.pack(pady=4, fill=tk.X, padx=15)
@@ -230,7 +230,7 @@ def launch_gui() -> None:
     high_entry.grid(row=0, column=5, padx=4)
     ToolTip(high_entry, "High cutoff for Band-Pass filter.")
 
-    # Populate defaults when signal type or filter changes
+    
     def _update_default_hints(*_args):
         sig = selected_signal.get()
         fk = FILTER_OPTIONS.get(selected_filter.get(), "")
@@ -262,7 +262,7 @@ def launch_gui() -> None:
     selected_filter.trace_add("write", _update_default_hints)
     _update_default_hints()  # initial fill
 
-    # ── Buttons ──────────────────────────────────────────────────────────
+    
     btn_frame = tk.Frame(root)
     btn_frame.pack(pady=8)
 
@@ -285,7 +285,7 @@ def launch_gui() -> None:
     reset_btn.pack(side=tk.LEFT, padx=8)
     ToolTip(reset_btn, "Clear all results and reload a new file.")
 
-    # ── Info & Stats panel (side by side) ────────────────────────────────
+    
     bottom_panel = tk.Frame(root)
     bottom_panel.pack(fill=tk.X, padx=15, pady=4)
 
@@ -299,7 +299,7 @@ def launch_gui() -> None:
     stats_text = tk.Text(stats_lf, height=6, width=45, font=("Consolas", 9))
     stats_text.pack(fill=tk.BOTH, expand=True)
 
-    # ── Plot notebook ────────────────────────────────────────────────────
+    
     plot_notebook = ttk.Notebook(root)
     plot_notebook.pack(fill="both", expand=True, padx=15, pady=(4, 10))
 
@@ -314,7 +314,7 @@ def launch_gui() -> None:
     root.mainloop()
 
 
-# ── Internal callbacks ───────────────────────────────────────────────────────
+
 
 def _browse_file(var):
     path = filedialog.askopenfilename(
@@ -370,27 +370,27 @@ def _run(root, file_var, sig_var, filt_var, cutoff_var,
         messagebox.showerror("Error", "Please select a valid filter type.")
         return
 
-    # Parse custom parameters
+  
     custom_cutoff = _safe_float(cutoff_var.get())
     custom_low = _safe_float(low_var.get())
     custom_high = _safe_float(high_var.get())
 
     try:
-        # ── 1. Load & validate ───────────────────────────────────────
+        
         raw_df = load_csv_file(file_path)
         clean_df, clean_report = validate_and_clean_data(raw_df)
 
-        # Keep a copy of the truly raw signal (before preprocessing)
+        
         raw_signal = clean_df["signal"].to_numpy().copy()
 
-        # ── 2. Preprocessing ─────────────────────────────────────────
+        
         proc_df = apply_preprocessing(clean_df, signal_type)
 
         fs = estimate_sampling_frequency(proc_df)
         time_arr = proc_df["time"].to_numpy()
         signal_arr = proc_df["signal"].to_numpy()
 
-        # ── 3. Filter ────────────────────────────────────────────────
+        
         filtered = apply_filter(
             signal_arr, fs, filter_key, signal_type,
             custom_cutoff=custom_cutoff,
@@ -398,21 +398,21 @@ def _run(root, file_var, sig_var, filt_var, cutoff_var,
             custom_high=custom_high,
         )
 
-        # ── 4. Statistics ────────────────────────────────────────────
+        
         raw_stats = compute_statistics(signal_arr)
         filt_stats = compute_statistics(filtered)
 
-        # ── 5. Features ──────────────────────────────────────────────
+        
         filt_features = extract_features(filtered, time_arr, signal_type, fs)
 
-        # ── 6. FFT ───────────────────────────────────────────────────
+        
         raw_freqs, raw_mags = compute_fft(signal_arr, fs)
         filt_freqs, filt_mags = compute_fft(filtered, fs)
 
         raw_dom = find_dominant_frequencies(raw_freqs, raw_mags)
         filt_dom = find_dominant_frequencies(filt_freqs, filt_mags)
 
-        # ── 7. Build figures ─────────────────────────────────────────
+        
         time_fig = create_time_figure(
             time_arr, signal_arr, filtered, signal_type, filter_label)
         raw_fft_fig = create_fft_figure(
@@ -423,8 +423,8 @@ def _run(root, file_var, sig_var, filt_var, cutoff_var,
             f"Filtered Signal FFT ({filter_label})",
             dominant_freqs=filt_dom)
 
-        # ── 8. Update GUI ────────────────────────────────────────────
-        # Signal info panel
+        
+       
         info_text.delete("1.0", tk.END)
         duration = time_arr[-1] - time_arr[0] if len(time_arr) > 1 else 0
         info_text.insert(tk.END, f"File:        {file_path.split('/')[-1]}\n")
@@ -435,7 +435,7 @@ def _run(root, file_var, sig_var, filt_var, cutoff_var,
         info_text.insert(tk.END, f"Rows cleaned:{clean_report['rows_removed']}\n")
         info_text.insert(tk.END, f"Filter:      {filter_label}\n")
 
-        # Stats & features panel
+       
         stats_text.delete("1.0", tk.END)
         stats_text.insert(tk.END, "── Preprocessed Signal ──\n")
         for k, v in raw_stats.items():
@@ -452,14 +452,14 @@ def _run(root, file_var, sig_var, filt_var, cutoff_var,
             else:
                 stats_text.insert(tk.END, f"  {k}: {v:.4f}\n")
 
-        # Dominant frequencies
+        
         if filt_dom:
             stats_text.insert(tk.END, "\n── Dominant Freq (Filtered) ──\n")
             for d in filt_dom:
                 stats_text.insert(
                     tk.END, f"  {d['frequency']:.2f} Hz  (mag {d['magnitude']:.4f})\n")
 
-        # Embed plots
+        
         _embed_figure(time_tab, time_fig)
         _embed_figure(raw_fft_tab, raw_fft_fig)
         _embed_figure(filt_fft_tab, filt_fft_fig)

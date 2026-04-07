@@ -44,11 +44,11 @@ def validate_and_clean_data(df: pd.DataFrame) -> tuple[pd.DataFrame, dict]:
     if df.shape[1] < 2:
         raise ValueError("CSV must contain at least 2 columns (time and signal).")
 
-    # Keep first two columns only
+   
     df = df.iloc[:, :2].copy()
     df.columns = ["time", "signal"]
 
-    # Coerce to numeric — non-numeric entries become NaN
+    
     df["time"] = pd.to_numeric(df["time"], errors="coerce")
     df["signal"] = pd.to_numeric(df["signal"], errors="coerce")
 
@@ -56,10 +56,10 @@ def validate_and_clean_data(df: pd.DataFrame) -> tuple[pd.DataFrame, dict]:
     report["missing_signal"] = int(df["signal"].isna().sum())
     report["total_rows_before"] = len(df)
 
-    # Drop rows where time is missing (cannot interpolate time reliably)
+   
     df = df.dropna(subset=["time"])
 
-    # Interpolate missing signal values linearly, then back/forward fill edges
+   
     df["signal"] = df["signal"].interpolate(method="linear")
     df["signal"] = df["signal"].bfill().ffill()
 

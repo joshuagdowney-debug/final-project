@@ -8,7 +8,7 @@ import numpy as np
 from scipy.signal import find_peaks
 
 
-# ── Basic statistics ─────────────────────────────────────────────────────────
+
 
 def compute_statistics(signal: np.ndarray) -> dict:
     """
@@ -23,7 +23,7 @@ def compute_statistics(signal: np.ndarray) -> dict:
     }
 
 
-# ── FFT ──────────────────────────────────────────────────────────────────────
+
 
 def compute_fft(signal: np.ndarray, fs: float) -> tuple[np.ndarray, np.ndarray]:
     """
@@ -47,14 +47,14 @@ def find_dominant_frequencies(frequencies: np.ndarray,
     if len(magnitudes) < 3:
         return []
 
-    # Skip DC component (index 0)
+    
     mags = magnitudes[1:].copy()
     freqs = frequencies[1:].copy()
 
     peaks, properties = find_peaks(mags, height=0)
 
     if len(peaks) == 0:
-        # Fallback: just pick the max
+       
         idx = np.argmax(mags)
         return [{"frequency": float(freqs[idx]),
                  "magnitude": float(mags[idx])}]
@@ -72,7 +72,7 @@ def find_dominant_frequencies(frequencies: np.ndarray,
     return results
 
 
-# ── Signal-type-specific feature extraction ──────────────────────────────────
+
 
 def extract_features(signal: np.ndarray, time: np.ndarray,
                      signal_type: str, fs: float) -> dict:
